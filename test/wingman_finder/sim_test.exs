@@ -13,7 +13,6 @@ defmodule WingmanFinder.SimTest do
   end
 
   describe "sims" do
-
     @tag name: "Valid name"
     test "valid changeset", %{changeset: changeset} do
       assert changeset.valid?
