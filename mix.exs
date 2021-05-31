@@ -45,6 +45,7 @@ defmodule WingmanFinder.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ex_machina, "~> 2.7.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:sobelow, "~> 0.8", only: :dev}
     ]
   end
 
