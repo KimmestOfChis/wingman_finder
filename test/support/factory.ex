@@ -11,6 +11,7 @@ defmodule WingmanFinder.Factory do
   def module_factory do
     %WingmanFinder.Module{
       name: sequence(:name, &"module-#{&1}"),
+      type: "map",
       sim: build(:sim)
     }
   end
