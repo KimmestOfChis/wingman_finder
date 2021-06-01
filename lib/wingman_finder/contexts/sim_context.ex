@@ -2,9 +2,7 @@ defmodule WingmanFinder.SimContext do
   alias WingmanFinder.{Repo, Sim}
   
   @spec list_sims() :: list(%Sim{})
-  def list_sims do
-    Repo.all(Sim)
-  end
+  def list_sims, do: Repo.all(Sim)
   
   @spec get_sim(integer()) :: %Sim{}
   def get_sim(id), do: Repo.get(Sim, id)
