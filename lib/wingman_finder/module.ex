@@ -6,6 +6,7 @@ defmodule WingmanFinder.Module do
 
   schema "modules" do
     field :name, :string
+    field :type, :string
 
     belongs_to :sim, Sim
 
@@ -14,8 +15,8 @@ defmodule WingmanFinder.Module do
 
   def changeset(module, attrs) do
     module
-    |> cast(attrs, [:name, :sim_id])
-    |> validate_required([:name, :sim_id])
+    |> cast(attrs, [:name, :type, :sim_id])
+    |> validate_required([:name, :type, :sim_id])
     |> unique_constraint(:name)
   end
 end

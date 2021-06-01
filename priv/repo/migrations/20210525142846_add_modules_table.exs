@@ -4,9 +4,11 @@ defmodule WingmanFinder.Repo.Migrations.AddModulesTable do
   def change do
     create table(:modules) do
       add :name, :string, null: false
+      add :type, :string, null: false
+
       add :sim_id, references(:sims)
 
-      timestamps
+      timestamps()
     end
 
     create unique_index(:modules, [:name])

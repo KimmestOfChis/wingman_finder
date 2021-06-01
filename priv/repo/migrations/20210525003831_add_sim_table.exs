@@ -5,7 +5,7 @@ defmodule WingmanFinder.Repo.Migrations.AddSimTable do
     create table(:sims) do
       add :name, :string, null: false
 
-      timestamps
+      timestamps()
     end
 
     create unique_index(:sims, [:name])

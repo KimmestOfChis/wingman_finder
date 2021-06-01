@@ -7,6 +7,8 @@ defmodule WingmanFinderWeb.Router do
 
   scope "/api", WingmanFinderWeb do
     pipe_through :api
+
+    resources("/sim", SimController, only: [:create, :index, :show, :update])
   end
 
   # Enables LiveDashboard only for development
