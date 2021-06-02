@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+docker_compose="docker-compose -f docker-compose.local.yml"
+
+if [ ! -x "$(command -v docker)" ]; then
+  echo "docker is missing"
+  exit 1
+fi
+
+$docker_compose up -d postgres
+
+counter=0
+while true; do
+  echo "[$((counter++))] Waiting for postgres to be ready..."
+  $docker_compose exec -T postgres \
+    psql postgresql://postgres:postgres@localhost/template1 -c select 1 > /dev/null 2>&1 \
+    && break
+done
+
+mix ecto.setup
+
+echo "all setup for local dev"
