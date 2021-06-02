@@ -1,0 +1,44 @@
+# Elixir CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-elixir/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version here
+      - image: circleci/elixir:1.12.1
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: circleci/postgres:12.7
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      # specify any bash command here prefixed with `run: `
+      - run: 
+          name: Set Up Hex
+          command: mix local.hex --force
+      - run: 
+          name: Rebar
+          command: mix local.rebar --force
+      - run: 
+          name: Fetch Dependencies
+          command: mix deps.get
+      - run: 
+          name: Set Up Database
+          command: mix ecto.create
+      - run: 
+          name: Unit Tests
+          command: mix test
+      - run: 
+          name: Dialyzer
+          command: mix dialyzer
+      - run: 
+          name: Sobelow
+          command: mix sobelow -i Config.HTTPS --exit
