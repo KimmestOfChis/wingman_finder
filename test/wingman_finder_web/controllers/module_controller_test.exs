@@ -61,7 +61,7 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"errors" => "has already been taken"}
+      assert response == %{"errors" => [%{"name" => "has already been taken"}]}
     end
 
     test "it doesn't create blank records", %{conn: conn, sim: sim} do
@@ -74,7 +74,7 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"errors" => "can't be blank"}
+      assert response == %{"errors" => [%{"name" => "can't be blank"}]}
     end
 
     test "it requires a sim_id", %{conn: conn, sim: sim} do
@@ -86,7 +86,7 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"errors" => "can't be blank"}
+      assert response == %{"errors" => [%{"sim_id" => "can't be blank"}]}
     end
   end
 
@@ -120,7 +120,7 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"errors" => "has already been taken"}
+      assert response == %{"errors" => [%{"name" => "has already been taken"}]}
     end
 
     test "it doesn't update to blank name", %{conn: conn, module: module} do
@@ -132,7 +132,7 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"errors" => "can't be blank"}
+      assert response == %{"errors" => [%{"name" => "can't be blank"}]}
     end
   end
 end

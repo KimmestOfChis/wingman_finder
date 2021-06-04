@@ -13,7 +13,7 @@ defmodule WingmanFinderWeb.ModuleView do
     %{id: module.id, name: module.name}
   end
 
-  def render("error.json", %{error: error}) do
-    %{errors: error}
+  def render("error.json", %{errors: errors}) do
+    %{errors: errors}
   end
 end

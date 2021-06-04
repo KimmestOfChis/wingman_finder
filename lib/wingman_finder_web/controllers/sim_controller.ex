@@ -2,6 +2,7 @@ defmodule WingmanFinderWeb.SimController do
   use WingmanFinderWeb, :controller
 
   alias WingmanFinder.{Repo, Sim, SimContext}
+  alias WingmanFinderWeb.ErrorHelpers
 
   def index(conn, _params) do
     sims = SimContext.list_sims()
@@ -43,7 +44,8 @@ defmodule WingmanFinderWeb.SimController do
     end
   end
 
-  defp error_handler(conn, %Ecto.Changeset{errors: [name: {error_reason, _}]}) do
-    render(conn, "error.json", error: error_reason)
+  defp error_handler(conn, changeset) do
+    errors = ErrorHelpers.handle_errors(changeset)
+    render(conn, "error.json", errors: errors)
   end
 end
