@@ -32,5 +32,5 @@ defmodule WingmanFinderWeb.ErrorHelpers do
   end
 
   def handle_errors(%Ecto.Changeset{errors: errors}),
-    do: Enum.map(errors, fn {field, {error, _}} -> %{"#{field}": error} end)
+    do: Enum.map(errors, fn {field, {error, _}} -> %{field => error} end)
 end
