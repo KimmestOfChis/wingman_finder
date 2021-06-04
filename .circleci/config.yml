@@ -34,6 +34,9 @@ jobs:
           name: Set Up Database
           command: mix ecto.create
       - run: 
+          name: Check Formatting
+          command: mix format --check-formatted
+      - run: 
           name: Unit Tests
           command: mix test
       - run: 
