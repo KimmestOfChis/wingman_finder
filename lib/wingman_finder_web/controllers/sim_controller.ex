@@ -1,7 +1,9 @@
 defmodule WingmanFinderWeb.SimController do
   use WingmanFinderWeb, :controller
 
-  alias WingmanFinder.{Repo, Sim, SimContext}
+  alias WingmanFinder.SimContext
+
+  action_fallback WingmanFinderWeb.FallbackController
 
   def index(conn, _params) do
     sims = SimContext.list_sims()
@@ -15,35 +17,19 @@ defmodule WingmanFinderWeb.SimController do
   end
 
   def create(conn, params) do
-    params
-    |> SimContext.create_sim()
-    |> case do
-      {:ok, sim} ->
-        conn
-        |> put_status(:created)
-        |> render("show.json", sim: sim)
-
-      {:error, changeset} ->
-        error_handler(conn, changeset)
+    with {:ok, sim} <- SimContext.create_sim(params) do
+      conn
+      |> put_status(:created)
+      |> render("show.json", sim: sim)
     end
   end
 
   def update(conn, %{"id" => id} = params) do
-    Sim
-    |> Repo.get(id)
-    |> SimContext.update_sim(params)
-    |> case do
-      {:ok, sim} ->
-        conn
-        |> put_status(:created)
-        |> render("show.json", sim: sim)
-
-      {:error, changeset} ->
-        error_handler(conn, changeset)
+    with sim <- SimContext.get_sim(id),
+         {:ok, sim} <- SimContext.update_sim(sim, params) do
+      conn
+      |> put_status(201)
+      |> render("show.json", sim: sim)
     end
-  end
-
-  defp error_handler(conn, %Ecto.Changeset{errors: [name: {error_reason, _}]}) do
-    render(conn, "error.json", error: error_reason)
   end
 end

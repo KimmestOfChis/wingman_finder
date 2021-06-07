@@ -30,4 +30,7 @@ defmodule WingmanFinderWeb.ErrorHelpers do
       Gettext.dgettext(WingmanFinderWeb.Gettext, "errors", msg, opts)
     end
   end
+
+  def handle_errors(%Ecto.Changeset{errors: errors}),
+    do: Enum.map(errors, fn {field, {error, _}} -> %{field => error} end)
 end
