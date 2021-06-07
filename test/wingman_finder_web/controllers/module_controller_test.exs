@@ -27,7 +27,10 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
       %Plug.Conn{resp_body: resp_body} = get(conn, Routes.module_path(conn, :show, module.id))
 
       {:ok, resp_body} = Jason.decode(resp_body)
-      assert resp_body == %{"data" => %{"id" => module.id, "name" => module.name}}
+
+      assert resp_body == %{
+               "data" => %{"id" => module.id, "name" => module.name, "type" => module.type}
+             }
     end
   end
 
@@ -46,9 +49,9 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      %Module{name: name, id: id} = Repo.get_by(Module, name: module_params.name)
+      %Module{name: name, type: type, id: id} = Repo.get_by(Module, name: module_params.name)
 
-      assert response == %{"data" => %{"name" => name, "id" => id}}
+      assert response == %{"data" => %{"name" => name, "id" => id, "type" => type}}
     end
 
     test "it doesn't create duplicate records", %{conn: conn, sim: sim} do
@@ -107,7 +110,9 @@ defmodule WingmanFinderWeb.ModuleControllerTest do
 
       {:ok, response} = Jason.decode(resp_body)
 
-      assert response == %{"data" => %{"name" => updated_name, "id" => module.id}}
+      assert response == %{
+               "data" => %{"name" => updated_name, "id" => module.id, "type" => module.type}
+             }
     end
 
     test "it doesn't update with a taken name", %{conn: conn, module: module} do

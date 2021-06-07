@@ -12,8 +12,4 @@ defmodule WingmanFinderWeb.SimView do
   def render("sim.json", %{sim: sim}) do
     %{id: sim.id, name: sim.name}
   end
-
-  def render("error.json", %{errors: errors}) do
-    %{errors: errors}
-  end
 end
