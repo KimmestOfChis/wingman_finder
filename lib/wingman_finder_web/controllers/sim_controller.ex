@@ -25,16 +25,11 @@ defmodule WingmanFinderWeb.SimController do
   end
 
   def update(conn, %{"id" => id} = params) do
-    SimContext.get_sim(id)
-    |> SimContext.update_sim(params)
-    |> case do
-      {:ok, sim} ->
-        conn
-        |> put_status(:ok)
-        |> render("show.json", sim: sim)
-
-      error ->
-        error
+    with sim <- SimContext.get_sim(id),
+         {:ok, sim} <- SimContext.update_sim(sim, params) do
+      conn
+      |> put_status(201)
+      |> render("show.json", sim: sim)
     end
   end
 end

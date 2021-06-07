@@ -25,16 +25,11 @@ defmodule WingmanFinderWeb.ModuleController do
   end
 
   def update(conn, %{"id" => id} = params) do
-    ModuleContext.get_module(id)
-    |> ModuleContext.update_module(params)
-    |> case do
-      {:ok, module} ->
-        conn
-        |> put_status(:ok)
-        |> render("show.json", module: module)
-
-      error ->
-        error
+    with module <- ModuleContext.get_module(id),
+         {:ok, module} <- ModuleContext.update_module(module, params) do
+      conn
+      |> put_status(201)
+      |> render("show.json", module: module)
     end
   end
 end
