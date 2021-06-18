@@ -36,6 +36,7 @@ defmodule WingmanFinder.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.4"},
       {:ex_machina, "~> 2.7.0"},
+      {:faker, "~> 0.16.0"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:phoenix, "~> 1.5.8"},
