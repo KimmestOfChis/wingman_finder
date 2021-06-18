@@ -15,4 +15,12 @@ defmodule WingmanFinder.Factory do
       sim: build(:sim)
     }
   end
+
+  def user_factory do
+    %WingmanFinder.User{
+      username: Faker.Pokemon.name(),
+      email: Faker.Internet.email(),
+      password: Faker.Lorem.characters() |> List.to_string()
+    }
+  end
 end
