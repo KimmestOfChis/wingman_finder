@@ -1,6 +1,5 @@
 defmodule WingmanFinder.Module do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use WingmanFinder.Schema
 
   alias WingmanFinder.Sim
 
@@ -13,6 +12,7 @@ defmodule WingmanFinder.Module do
     timestamps()
   end
 
+  @doc false
   def changeset(module, attrs) do
     module
     |> cast(attrs, [:name, :type, :sim_id])
