@@ -11,7 +11,7 @@ defmodule WingmanFinderWeb.FallbackController do
   end
 
   def call(conn, {:error, %Ecto.Changeset{errors: errors}}) do
-    errors = Enum.map(errors, fn {field, {error, _}} -> %{field => error} end)
+    errors = Enum.map(errors, fn {field, {error, _}} -> "#{field} #{error}" end)
 
     conn
     |> put_status(422)
