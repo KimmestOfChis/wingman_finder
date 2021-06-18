@@ -7,6 +7,8 @@
 # General application configuration
 use Mix.Config
 
+config :wingman_finder, App.Repo, migration_timestamps: [type: :utc_datetime]
+
 config :wingman_finder,
   ecto_repos: [WingmanFinder.Repo]
 
