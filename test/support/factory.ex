@@ -23,4 +23,12 @@ defmodule WingmanFinder.Factory do
       password: Faker.Lorem.characters() |> List.to_string()
     }
   end
+
+  def app_factory do
+    %WingmanFinder.App{
+      display_name: Faker.Pokemon.name(),
+      api_key: Faker.UUID.v4(),
+      api_secret: Faker.UUID.v4()
+    }
+  end
 end
