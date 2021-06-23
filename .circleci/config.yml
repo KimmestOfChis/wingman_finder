@@ -7,7 +7,6 @@ jobs:
     docker:
       # specify the version here
       - image: circleci/elixir:1.12.1
-
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -31,6 +30,9 @@ jobs:
           name: Fetch Dependencies
           command: mix deps.get
       - run: 
+          name: Install Node & NPM
+          command: sudo apt install nodejs && sudo apt install npm
+      - run: 
           name: Set Up Database
           command: mix ecto.create
       - run: 
@@ -45,3 +47,10 @@ jobs:
       - run: 
           name: Sobelow
           command: mix sobelow -i Config.HTTPS --exit
+      - run: 
+          name: Install JS Dependencies 
+          command: cd wingman_finder_frontend
+      - run: 
+          name: JS Tests
+          command: npm test
+    
