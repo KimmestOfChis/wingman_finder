@@ -4,30 +4,24 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
 
-import SignUp from './SignUp'
+import LogIn from './LogIn'
 
-let emailField
 let usernameField
 let passwordField
-let confirmPasswordField
 let submitButton
-const userParams = {
-    email: 'example@email.com',
+const loginParams = {
     username: 'example!',
-    password: 'some password',
-    passwordConfirm: 'some password'
+    password: 'some password'
 }
 
 describe('SignUp', () => {
     beforeAll(() => jest.spyOn(window, 'fetch'))
     beforeEach(() => {
-        render(<SignUp />)
+        render(<LogIn />)
 
-        emailField = screen.getByLabelText('Email Address *')
         usernameField = screen.getByLabelText('Username *')
         passwordField = screen.getByLabelText('Password *')
-        confirmPasswordField = screen.getByLabelText('Confirm Password *')
-        submitButton = screen.getByTestId('sign-up-button')
+        submitButton = screen.getByTestId('log-in-button')
     })
 
     afterEach(() => {
@@ -36,26 +30,20 @@ describe('SignUp', () => {
 
     describe('fields fill in', () => {
         test('fields are filled in', () => { 
-            const { email, username, password } = userParams
-            fireEvent.change(emailField, { target: { value: email } })
+            const { username, password } = loginParams
             fireEvent.change(usernameField, { target: { value: username } })
             fireEvent.change(passwordField, { target: { value: password } })
-            fireEvent.change(confirmPasswordField, { target: { value: password } })
 
-            expect(emailField.value).toBe(email);
             expect(usernameField.value).toBe(username);
             expect(passwordField.value).toBe(password);
-            expect(confirmPasswordField.value).toBe(password);
         })
     })
 
     describe('on submit', () => {
         test('successful submit', async () => {
-            const { email, username, password } = userParams
-            fireEvent.change(emailField, { target: { value: email } })
+            const { username, password } = loginParams
             fireEvent.change(usernameField, { target: { value: username } })
             fireEvent.change(passwordField, { target: { value: password } })
-            fireEvent.change(confirmPasswordField, { target: { value: password } })
 
             window.fetch.mockResolvedValueOnce({
                 ok: true,
@@ -65,10 +53,10 @@ describe('SignUp', () => {
               userEvent.click(submitButton)
 
               expect(window.fetch).toHaveBeenCalledWith(
-                '/api/sign_up',
+                '/api/log_in',
                 {
                   method: 'POST',
-                  body: JSON.stringify(userParams),
+                  body: JSON.stringify(loginParams),
                   headers: {
                     'Content-Type': 'application/json',
                   },
