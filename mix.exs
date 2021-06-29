@@ -33,6 +33,7 @@ defmodule WingmanFinder.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 2.3.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.4"},
       {:ex_machina, "~> 2.7.0"},
