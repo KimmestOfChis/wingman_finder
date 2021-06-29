@@ -1,5 +1,6 @@
 import './App.css';
 import SignUp from './components/SignUp/SignUp'
+import LogIn from './components/LogIn/LogIn'
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,6 +16,9 @@ function App() {
               <Route path="/sign-up">
                 <SignUp />
               </Route>
+              <Route path="/log-in">
+                <LogIn />
+              </Route> 
             </Switch>
           </Router>
       </header>

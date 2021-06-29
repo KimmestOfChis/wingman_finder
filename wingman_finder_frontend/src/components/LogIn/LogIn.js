@@ -38,10 +38,8 @@ export default function SignUp() {
   const initialState = {
     errors: [],
     userParams: {
-      email: "",
       username: "",
       password: "",
-      passwordConfirm: ""
     }
   }
 
@@ -58,7 +56,7 @@ export default function SignUp() {
   }
 
   const submitUser = () => {
-    fetch('/api/sign_up',{
+    fetch('/api/log_in',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,23 +79,11 @@ export default function SignUp() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          Log In
         </Typography>
         <form className={classes.form} noValidate>
         <Banner errors={state.errors} />
           <Grid container spacing={2}>
-          <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                onChange={handleInput}
-              />
-            </Grid>
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
@@ -122,22 +108,9 @@ export default function SignUp() {
                 onChange={handleInput}
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                name="passwordConfirm"
-                label="Confirm Password"
-                type="password"
-                id="passwordConfirm"
-                autoComplete="current-password"
-                onChange={handleInput}
-              />
-            </Grid>
           </Grid>
           <Button
-            data-testid="sign-up-button"
+            data-testid="log-in-button"
             type="button"
             fullWidth
             variant="contained"
@@ -145,12 +118,12 @@ export default function SignUp() {
             className={classes.submit}
             onClick={() => { submitUser() }}
           >
-            Sign Up
+            Log In
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="/log-in" variant="body2">
-                Already have an account? Sign in
+              <Link href="/sign-up" variant="body2">
+                Don't have an account? Sign up here!
               </Link>
             </Grid>
           </Grid>
