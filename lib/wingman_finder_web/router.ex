@@ -8,6 +8,8 @@ defmodule WingmanFinderWeb.Router do
   scope "/api", WingmanFinderWeb do
     pipe_through :api
 
+    post("/login", SessionController, :create)
+
     resources("/sims", SimController, only: [:create, :index, :show, :update])
     resources("/modules", ModuleController, only: [:create, :index, :show, :update])
   end
