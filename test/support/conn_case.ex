@@ -17,6 +17,13 @@ defmodule WingmanFinderWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  import Plug.Conn
+  import WingmanFinder.Factory
+
+  alias WingmanFinder.Auth.Session
+
+  @auth_header_key "authorization"
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -38,6 +45,19 @@ defmodule WingmanFinderWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(WingmanFinder.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    user = insert(:user)
+    app = insert(:app)
+
+    conn = Phoenix.ConnTest.build_conn() |> with_auth_token(app, user)
+
+    {:ok, conn: conn, user: user, app: app}
+  end
+
+  defp with_auth_token(conn, app, user) do
+    token = Session.create_access_token(app, user)
+
+    insert(:session, %{user: user, app: app, token: token})
+
+    conn |> put_req_header(@auth_header_key, "Bearer #{token}")
   end
 end

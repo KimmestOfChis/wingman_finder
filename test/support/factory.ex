@@ -21,7 +21,7 @@ defmodule WingmanFinder.Factory do
   end
 
   def session_factory(attrs) do
-    user = if attrs[:user], do: attrs[:user], else: :user |> build() |> with_password_hash()
+    user = if attrs[:user], do: attrs[:user], else: build(:user)
     app = if attrs[:app], do: attrs[:app], else: build(:app)
     token = if attrs[:token], do: attrs[:token], else: Session.create_access_token(user, app)
 
@@ -39,13 +39,17 @@ defmodule WingmanFinder.Factory do
   end
 
   def user_factory do
-    %WingmanFinder.User{
-      username: Faker.Pokemon.name(),
-      email: Faker.Internet.email(),
-      password: Faker.Lorem.characters() |> List.to_string()
-    }
+    user_opts =
+      %{
+        username: Faker.Pokemon.name(),
+        email: Faker.Internet.email(),
+        password: Faker.Lorem.characters() |> List.to_string()
+      }
+      |> with_password_hash()
+
+    Map.merge(%WingmanFinder.User{}, user_opts)
   end
 
-  def with_password_hash(user),
-    do: %{user | password_hash: Authentication.hash_password(user.password)}
+  defp with_password_hash(%{password: password} = user),
+    do: Map.merge(user, Authentication.hash_password(password))
 end

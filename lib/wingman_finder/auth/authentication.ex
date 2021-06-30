@@ -8,7 +8,17 @@ defmodule WingmanFinder.Auth.Authentication do
 
   @spec get_app(map()) :: {:ok, App.t()} | {:error, Changeset.t()}
   def get_app(%{"client_id" => client_id, "client_secret" => client_secret}),
-    do: Repo.get_by(User, client_id: client_id, client_secret: client_secret)
+    do: Repo.get_by(App, client_id: client_id, client_secret: client_secret)
+
+  @spec get_app(integer()) :: {:ok, App.t()} | {:error, Changeset.t()}
+  def get_app(id) when is_integer(id),
+    do: Repo.get(App, id)
+
+  @spec get_user(integer() | map()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def get_user(id) when is_integer(id),
+    do: Repo.get(User, id)
+
+  def get_user(%{"username" => username}), do: Repo.get_by(User, username: username)
 
   @doc """
   fetches a user based on username and verifies that the password given matched the hash
@@ -23,7 +33,6 @@ defmodule WingmanFinder.Auth.Authentication do
   @doc """
   hashes the given password using bcrypt
   """
+  @spec hash_password(String.t()) :: %{password_hash: String.t()}
   def hash_password(password), do: Bcrypt.add_hash(password)
-
-  defp get_user(%{"username" => username}), do: Repo.get_by(User, username: username)
 end

@@ -5,7 +5,8 @@ defmodule WingmanFinder.Plug.ApiAuthenticated do
   import Plug.Conn, only: [assign: 3, get_req_header: 2, halt: 1, put_status: 2]
   import Phoenix.Controller, only: [json: 2]
 
-  alias WingmanFinder.Auth.Authentication
+  alias WingmanFinder.Auth.{Authentication, Session}
+  alias WingmanFinder.{App, User}
 
   @auth_header_key "authorization"
 
@@ -16,13 +17,13 @@ defmodule WingmanFinder.Plug.ApiAuthenticated do
   def call(conn, _params) do
     with {:ok, token} <- validate_auth_header(conn),
          {:ok, %{app_id: app_id, user_id: user_id}} <- i(Session).validate_access_token(token),
-         {:ok, app} <- i(Authentication).get_app(app_id),
-         {:ok, user} <- i(Authentication).get_user(user_id) do
+         %App{} = app <- i(Authentication).get_app(app_id),
+         %User{} = user <- i(Authentication).get_user(user_id) do
       conn
       |> assign(:current_user, user)
       |> assign(:current_app, app)
     else
-      {:error, :invalid_or_missing_auth_header} ->
+      _ ->
         conn
         |> put_status(:unauthorized)
         |> json(%{"error" => "you must be authenticated to access this resource"})
