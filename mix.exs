@@ -34,11 +34,13 @@ defmodule WingmanFinder.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 2.3.0"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:double, "~> 0.8.1", only: :test},
       {:ecto_sql, "~> 3.4"},
       {:ex_machina, "~> 2.7.0"},
       {:faker, "~> 0.16.0"},
       {:gettext, "~> 0.11"},
+      {:inject, "~> 0.2.1"},
       {:jason, "~> 1.0"},
       {:phoenix, "~> 1.5.8"},
       {:phoenix_ecto, "~> 4.1"},
