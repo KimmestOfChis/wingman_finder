@@ -20,3 +20,6 @@ config :wingman_finder, WingmanFinderWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# reduce logging rounds to speed up tests
+config :bcrypt_elixir, log_rounds: 4
