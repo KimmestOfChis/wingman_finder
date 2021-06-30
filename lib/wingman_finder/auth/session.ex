@@ -23,6 +23,15 @@ defmodule WingmanFinder.Auth.Session do
     do:
       Phoenix.Token.verify(signing_salt(), @token_namespace, access_token, max_age: @token_max_age)
 
+  @doc """
+  retreives the current session and destroys it
+  """
+  def clear_current_session(app, user),
+    do:
+      app
+      |> get_session(user)
+      |> delete_session()
+
   @spec delete_session(nil | Session.t()) :: {:ok, nil | Session.t()} | {:error, Changeset.t()}
   def delete_session(nil), do: {:ok, nil}
   def delete_session(session), do: Repo.delete(session)
@@ -43,15 +52,6 @@ defmodule WingmanFinder.Auth.Session do
     })
     |> Repo.insert()
   end
-
-  @doc """
-  retreives the current session and destroys it
-  """
-  def clear_current_session(app, user),
-    do:
-      app
-      |> get_session(user)
-      |> delete_session()
 
   defp signing_salt, do: Application.fetch_env!(:wingman_finder, :token_signing_salt)
 end

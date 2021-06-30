@@ -7,8 +7,9 @@ defmodule WingmanFinder.Auth.Authentication do
 
   alias Ecto.Changeset
 
-  alias WingmanFinder.{App, Repo, Session, User}
+  alias WingmanFinder.{App, Repo, User}
 
+  @spec get_app(map()) :: {:ok, App.t()} | {:error, Changeset.t()}
   def get_app(%{"client_id" => client_id, "client_secret" => client_secret}),
     do: Repo.get_by(User, client_id: client_id, client_secret: client_secret)
 
