@@ -10,7 +10,8 @@ use Mix.Config
 config :wingman_finder, App.Repo, migration_timestamps: [type: :utc_datetime]
 
 config :wingman_finder,
-  ecto_repos: [WingmanFinder.Repo]
+  ecto_repos: [WingmanFinder.Repo],
+  signing_salt: "super secret"
 
 # Configures the endpoint
 config :wingman_finder, WingmanFinderWeb.Endpoint,
