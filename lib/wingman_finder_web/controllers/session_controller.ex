@@ -5,6 +5,7 @@ defmodule WingmanFinderWeb.SessionController do
 
   import Inject, only: [i: 1]
 
+  alias WingmanFinder.App
   alias WingmanFinder.Auth.{Authentication, Session}
 
   def create(
@@ -16,12 +17,12 @@ defmodule WingmanFinderWeb.SessionController do
           "client_secret" => client_secret
         }
       ) do
-    with {:ok, app} <-
+    with %App{} = app <-
            i(Authentication).get_app(client_id: client_id, client_secret: client_secret),
-         {:ok, user} <- i(Authentication).verify_user(username: username, password: password),
+         {:ok, user} <- i(Authentication).verify_user(username, password),
          {:ok, access_token} <- i(Session).create_access_token(app, user),
          {:ok, _old_session} <- i(Session).clear_current_session(app, user),
-         {:ok, session} <- i(Session).save_session(app, user, access_token) do
+         {:ok, session} <- i(Session).create_session(app, user, access_token) do
       conn
       |> put_status(:created)
       |> render("show.json", access_token: session.token)

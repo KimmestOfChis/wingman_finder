@@ -61,7 +61,7 @@ defmodule WingmanFinderWeb.SessionControllerTest do
       assert {:ok, %{"errors" => []}} = Jason.decode(resp_body)
     end
 
-    @tag save_session_result: @ecto_error
+    @tag create_session_result: @ecto_error
     test "when saving the session fails, it does not return a token", %{conn: conn} do
       %Plug.Conn{resp_body: resp_body} =
         post(conn, Routes.session_path(conn, :create), @session_params)
@@ -90,9 +90,9 @@ defmodule WingmanFinderWeb.SessionControllerTest do
     stub =
       Authentication
       |> stub(:get_app, fn _params ->
-        if context[:get_app_result], do: context[:get_app_result], else: {:ok, build(:app)}
+        if context[:get_app_result], do: context[:get_app_result], else: build(:app)
       end)
-      |> stub(:verify_user, fn _params ->
+      |> stub(:verify_user, fn _username, _password ->
         if context[:verify_user_result],
           do: context[:verify_user_result],
           else: {:ok, build(:user)}
@@ -111,9 +111,9 @@ defmodule WingmanFinderWeb.SessionControllerTest do
           do: context[:create_access_token_result],
           else: {:ok, @access_token}
       end)
-      |> stub(:save_session, fn _app, _user, _token ->
-        if context[:save_session_result],
-          do: context[:save_session_result],
+      |> stub(:create_session, fn _app, _user, _token ->
+        if context[:create_session_result],
+          do: context[:create_session_result],
           else: {:ok, build(:session, token: @access_token)}
       end)
       |> stub(:clear_current_session, fn _app, _user ->
