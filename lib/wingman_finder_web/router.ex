@@ -5,10 +5,16 @@ defmodule WingmanFinderWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_authenticated do
+    plug WingmanFinder.Plug.ApiAuthenticated
+  end
+
   scope "/api", WingmanFinderWeb do
     pipe_through :api
 
     post("/login", SessionController, :create)
+
+    pipe_through :api_authenticated
 
     resources("/sims", SimController, only: [:create, :index, :show, :update])
     resources("/modules", ModuleController, only: [:create, :index, :show, :update])
