@@ -19,7 +19,8 @@ defmodule WingmanFinder.Auth.Session do
   """
   @spec create_access_token(App.t(), User.t()) :: String.t()
   def create_access_token(app, user),
-    do: Phoenix.Token.sign(signing_salt(), @token_namespace, %{app_id: app.id, user_id: user.id})
+    do:
+      i(Phoenix.Token).sign(signing_salt(), @token_namespace, %{app_id: app.id, user_id: user.id})
 
   @doc """
   validates that the access_token has not expired and was created by us
@@ -28,11 +29,10 @@ defmodule WingmanFinder.Auth.Session do
           {:ok, %{user_id: integer(), app_id: integer()}} | {:error, atom()}
   def validate_access_token(access_token) do
     with {:ok, %{app_id: app_id, user_id: user_id}} <-
-           Phoenix.Token.verify(signing_salt(), @token_namespace, access_token,
+           i(Phoenix.Token).verify(signing_salt(), @token_namespace, access_token,
              max_age: @token_max_age
            ),
-         %SessionStruct{} <-
-           i(__MODULE__).get_session(app_id: app_id, user_id: user_id, token: access_token) do
+         %SessionStruct{} <- get_session(app_id: app_id, user_id: user_id, token: access_token) do
       {:ok, %{app_id: app_id, user_id: user_id}}
     end
   end
@@ -54,7 +54,7 @@ defmodule WingmanFinder.Auth.Session do
   @spec delete_session(nil | SessionStruct.t()) ::
           {:ok, nil | SessionStruct.t()} | {:error, Changeset.t()}
   def delete_session(nil), do: {:ok, nil}
-  def delete_session(%SessionStruct{} = session), do: Repo.delete(session)
+  def delete_session(%SessionStruct{} = session), do: i(Repo).delete(session)
 
   @doc """
   fetches a session based on the passed opts
@@ -62,8 +62,7 @@ defmodule WingmanFinder.Auth.Session do
   opts should be the keys for %SessionStruct{}
   """
   @spec get_session(list()) :: SessionStruct.t() | nil
-  def get_session(opts) when is_list(opts), do: Repo.get_by(SessionStruct, opts)
-  def get_session(_), do: nil
+  def get_session(opts) when is_list(opts), do: i(Repo).get_by(SessionStruct, opts)
 
   @doc """
   saves the session for the app/user/token
@@ -72,13 +71,13 @@ defmodule WingmanFinder.Auth.Session do
           {:ok, SessionStruct.t()} | {:error, Changeset.t()}
   def create_session(app, user, token) do
     %SessionStruct{}
-    |> SessionStruct.changeset(%{
+    |> i(SessionStruct).changeset(%{
       app_id: app.id,
       user_id: user.id,
       token: token
     })
-    |> Repo.insert()
+    |> i(Repo).insert()
   end
 
-  defp signing_salt, do: Application.fetch_env!(:wingman_finder, :token_signing_salt)
+  defp signing_salt, do: i(Application).fetch_env!(:wingman_finder, :token_signing_salt)
 end
