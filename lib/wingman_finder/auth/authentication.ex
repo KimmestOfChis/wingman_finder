@@ -2,9 +2,6 @@ defmodule WingmanFinder.Auth.Authentication do
   @moduledoc """
   deals with user authentication into the system
   """
-
-  import Bcrypt
-
   alias Ecto.Changeset
 
   alias WingmanFinder.{App, Repo, User}
@@ -20,13 +17,13 @@ defmodule WingmanFinder.Auth.Authentication do
   def verify_user(%{"password" => password} = params) do
     params
     |> get_user()
-    |> check_pass(password)
+    |> Bcrypt.check_pass(password)
   end
 
   @doc """
   hashes the given password using bcrypt
   """
-  def hash_password(password), do: add_hash(password)
+  def hash_password(password), do: Bcrypt.add_hash(password)
 
   defp get_user(%{"username" => username}), do: Repo.get_by(User, username: username)
 end
