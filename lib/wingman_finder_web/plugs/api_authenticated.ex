@@ -17,8 +17,8 @@ defmodule WingmanFinder.Plug.ApiAuthenticated do
   def call(conn, _params) do
     with {:ok, token} <- validate_auth_header(conn),
          {:ok, %{app_id: app_id, user_id: user_id}} <- i(Session).validate_access_token(token),
-         %App{} = app <- i(Authentication).get_app(app_id),
-         %User{} = user <- i(Authentication).get_user(user_id) do
+         %App{} = app <- i(Authentication).get_app(id: app_id),
+         %User{} = user <- i(Authentication).get_user(id: user_id) do
       conn
       |> assign(:current_user, user)
       |> assign(:current_app, app)

@@ -9,10 +9,16 @@ defmodule WingmanFinderWeb.SessionController do
 
   def create(
         conn,
-        %{"username" => _, "password" => _, "client_id" => _, "client_secret" => _} = params
+        %{
+          "username" => username,
+          "password" => password,
+          "client_id" => client_id,
+          "client_secret" => client_secret
+        }
       ) do
-    with {:ok, app} <- i(Authentication).get_app(params),
-         {:ok, user} <- i(Authentication).verify_user(params),
+    with {:ok, app} <-
+           i(Authentication).get_app(client_id: client_id, client_secret: client_secret),
+         {:ok, user} <- i(Authentication).verify_user(username: username, password: password),
          {:ok, access_token} <- i(Session).create_access_token(app, user),
          {:ok, _old_session} <- i(Session).clear_current_session(app, user),
          {:ok, session} <- i(Session).save_session(app, user, access_token) do
