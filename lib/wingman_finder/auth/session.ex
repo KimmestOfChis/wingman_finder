@@ -1,4 +1,8 @@
 defmodule WingmanFinder.Auth.Session do
+  @moduledoc """
+  collection of functions dealing with sessions and their bookkeeping
+  """
+
   import Inject, only: [i: 1]
 
   alias Ecto.Changeset
@@ -27,7 +31,8 @@ defmodule WingmanFinder.Auth.Session do
            Phoenix.Token.verify(signing_salt(), @token_namespace, access_token,
              max_age: @token_max_age
            ),
-         %SessionStruct{} <- i(__MODULE__).get_session(app_id, user_id, access_token) do
+         %SessionStruct{} <-
+           i(__MODULE__).get_session(app_id: app_id, user_id: user_id, token: access_token) do
       {:ok, %{app_id: app_id, user_id: user_id}}
     end
   end
@@ -35,21 +40,30 @@ defmodule WingmanFinder.Auth.Session do
   @doc """
   retreives the current session and destroys it
   """
+  @spec clear_current_session(App.t(), User.t()) ::
+          {:ok, %SessionStruct{}} | {:error, Changeset.t()}
   def clear_current_session(app, user),
     do:
-      app
-      |> get_session(user)
+      [app_id: app.id, user_id: user.id]
+      |> get_session()
       |> delete_session()
 
+  @doc """
+  destroys the session
+  """
   @spec delete_session(nil | SessionStruct.t()) ::
           {:ok, nil | SessionStruct.t()} | {:error, Changeset.t()}
   def delete_session(nil), do: {:ok, nil}
-  def delete_session(session), do: Repo.delete(session)
+  def delete_session(%SessionStruct{} = session), do: Repo.delete(session)
 
-  def get_session(app, user), do: Repo.get_by(SessionStruct, app_id: app.id, user_id: user.id)
+  @doc """
+  fetches a session based on the passed opts
 
-  def get_session(app_id, user_id, token),
-    do: Repo.get_by(SessionStruct, app_id: app_id, user_id: user_id, token: token)
+  opts should be the keys for %SessionStruct{}
+  """
+  @spec get_session(list()) :: SessionStruct.t() | nil
+  def get_session(opts) when is_list(opts), do: Repo.get_by(SessionStruct, opts)
+  def get_session(_), do: nil
 
   @doc """
   saves the session for the app/user/token
