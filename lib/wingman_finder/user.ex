@@ -7,7 +7,7 @@ defmodule WingmanFinder.User do
   schema "users" do
     field :email, :string
     field :password, :string, redact: true, virtual: true
-    field :password_hashed, :string, redact: true
+    field :password_hash, :string, redact: true
     field :username, :string
 
     timestamps()
