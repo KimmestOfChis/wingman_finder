@@ -18,7 +18,9 @@ defmodule WingmanFinder.Plug.ApiAuthenticated do
          {:ok, %{app_id: app_id, user_id: user_id}} <- i(Session).validate_access_token(token),
          {:ok, app} <- i(Authentication).get_app(app_id),
          {:ok, user} <- i(Authentication).get_user(user_id) do
-      conn |> assign(:current_user, user) |> assign(:current_app, app)
+      conn
+      |> assign(:current_user, user)
+      |> assign(:current_app, app)
     else
       {:error, :invalid_or_missing_auth_header} ->
         conn
