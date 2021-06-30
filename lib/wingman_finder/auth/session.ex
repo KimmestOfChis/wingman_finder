@@ -68,9 +68,9 @@ defmodule WingmanFinder.Auth.Session do
   @doc """
   saves the session for the app/user/token
   """
-  @spec save_session(App.t(), User.t(), String.t()) ::
+  @spec create_session(App.t(), User.t(), String.t()) ::
           {:ok, SessionStruct.t()} | {:error, Changeset.t()}
-  def save_session(app, user, token) do
+  def create_session(app, user, token) do
     %SessionStruct{}
     |> SessionStruct.changeset(%{
       app_id: app.id,
