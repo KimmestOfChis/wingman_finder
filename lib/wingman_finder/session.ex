@@ -2,10 +2,13 @@ defmodule WingmanFinder.Session do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias WingmanFinder.{App, User}
+
   schema "sessions" do
     field :token, :string
-    field :user_id, :id
-    field :app_id, :id
+
+    belongs_to :user, User
+    belongs_to :app, App
 
     timestamps()
   end
@@ -13,7 +16,7 @@ defmodule WingmanFinder.Session do
   @doc false
   def changeset(session, attrs) do
     session
-    |> cast(attrs, [:token])
-    |> validate_required([:token])
+    |> cast(attrs, [:token, :user_id, :app_id])
+    |> validate_required([:token, :user_id, :app_id])
   end
 end
