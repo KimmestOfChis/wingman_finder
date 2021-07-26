@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import Banner from '../Banner/Banner'
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -30,36 +30,71 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function SignUp() {
+export default function Search() {
   const classes = useStyles();
   const initialState = {
     errors: [],
     searchParams: {
-        sims: ["DCS", "IL2"],
+        sims: [],
         modules: [],
         maps: [],
         timezones: []
-    }
+    },
+    selectedSim: null,
+    selectedModules: [],
+    selectedMaps: [],
+    selectedTimezones: []
   }
 
   const [state, setState] = useState(initialState)
 
-  const handleInput = (e) => {
-    setState((prevState) => ({
-      ...prevState,
-      userParams: {
-        ...prevState.userParams,
-        [e.target.name]: e.target.value
+  const getSims = () => {
+    fetch('/sims', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       }
-    }))
+    })
+    .then((response) => {
+      setState((prevState) => ({
+        ...prevState,
+        searchParams: {
+          ...prevState.searchParams,
+          sims: response['data']
+        }
+      }))
+    })
+    .catch((error_response) => {
+      setState({ errors: error_response.errors})
+    })
   }
+
+  useEffect(() => {
+    getSims();
+  }, []);
 
   const search = (e) => {
 
   }
 
-  const handleClick = () => {
-
+  const updateSelections = (param, textContent) => {
+    let updatedArray
+    if(state[param].includes(textContent)) {
+      updatedArray = state[param].filter(x => x !== textContent)
+    } else {
+      updatedArray = state[param].concat(textContent)
+    } 
+    return updatedArray
+  }
+  
+  const handleClick = (e, param) => {
+    const updateKey = `selected${param}`
+    const updateValue = param === "Sim" ? e.currentTarget.textContent : updateSelections(updateKey, e.currentTarget.textContent)
+  
+    setState((prevState) => ({
+      ...prevState,
+      [updateKey]: updateValue
+    }))
   }
 
   return (
@@ -75,13 +110,66 @@ export default function SignUp() {
         </h3>
         <Grid>
             {state.searchParams.sims.map(sim => { 
-                <Chip 
-                label={sim}
-                onClick={handleClick}
-                variant="outlined"
-                />
+                return(
+                  <Chip 
+                    key={sim}
+                    value={sim}
+                    label={sim}
+                    onClick={(e) => { handleClick(e, "Sim")}}
+                    variant={state.selectedSim === sim ? "default" : "outlined"}
+                  />
+                )
             })}
         </Grid>
+        {state.selectedSim && <>
+          <h3>With the following modules</h3>
+          <Grid>
+              {state.searchParams.modules.map(module => { 
+                  return(
+                    <Chip 
+                      key={module}
+                      value={module}
+                      label={module}
+                      name="Module"
+                      onClick={(e) => { handleClick(e, "Modules") }}
+                      variant={state.selectedModules.includes(module) ? "default" : "outlined"}
+                    />
+                  )
+              })}
+          </Grid>
+        </>}
+        {state.selectedSim && <>
+          <h3>and the following maps</h3>
+          <Grid>
+            {state.searchParams.maps.map(map => { 
+                return(
+                  <Chip 
+                    key={map}
+                    value={map}
+                    label={map}
+                    onClick={(e) => { handleClick(e, "Maps") }}
+                    variant={state.selectedMaps.includes(map) ? "default" : "outlined"}
+                  />
+                )
+            })}
+        </Grid>
+        </>}
+        {state.selectedSim && <>
+          <h3>in the following timezones</h3>
+          <Grid>
+              {state.searchParams.timezones.map(timezone => { 
+                  return(
+                    <Chip 
+                      key={timezone}
+                      value={timezone}
+                      label={timezone}
+                      onClick={(e) => { handleClick(e, "Timezones") }}
+                      variant={state.selectedTimezones.includes(timezone) ? "default" : "outlined"}
+                    />
+                  )
+              })}
+          </Grid>
+        </>}
         <Banner errors={state.errors} />
           <Button
             data-testid="search-button"
