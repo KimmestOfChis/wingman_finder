@@ -40,10 +40,12 @@ export default function Search() {
         maps: [],
         timezones: []
     },
-    selectedSim: null,
-    selectedModules: [],
-    selectedMaps: [],
-    selectedTimezones: []
+    selectedParams: {
+      selectedSim: null,
+      selectedModules: [],
+      selectedMaps: [],
+      selectedTimezones: []
+    }
   }
 
   const [state, setState] = useState(initialState)
@@ -65,7 +67,36 @@ export default function Search() {
       }))
     })
     .catch((error_response) => {
-      setState({ errors: error_response.errors})
+      setState((prevState) => ({
+        ...prevState,
+        errors: error_response.errors
+      }))
+    })
+  }
+
+  const getSearchParams = (sim) => {
+    fetch(`/get-search-params?sim=${sim}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then((response) => {
+      setState((prevState) => ({
+        ...prevState,
+        searchParams: {
+          ...prevState.searchParams,
+          modules: response['data']['modules'],
+          maps: response['data']['maps'], 
+          timezones: response['data']['timezones']
+        }
+      }))
+    })
+    .catch((error_response) => {
+      setState((prevState) => ({
+        ...prevState,
+        errors: error_response.errors
+      }))
     })
   }
 
@@ -73,33 +104,56 @@ export default function Search() {
     getSims();
   }, []);
 
-  const search = (e) => {
-
+  const search = () => {
+    fetch('/search',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(state.selectedParams),
+    })
+    .then((response) => {
+      // we'll have to do something here
+    })
+    .catch((error_response) => {
+      setState((prevState) => ({
+        ...prevState,
+        errors: error_response.errors
+      }))
+    })
   }
 
   const updateSelections = (param, textContent) => {
     let updatedArray
-    if(state[param].includes(textContent)) {
-      updatedArray = state[param].filter(x => x !== textContent)
+    if(state.selectedParams[param].includes(textContent)) {
+      updatedArray = state.selectedParams[param].filter(x => x !== textContent)
     } else {
-      updatedArray = state[param].concat(textContent)
+      updatedArray = state.selectedParams[param].concat(textContent)
     } 
     return updatedArray
+  }
+
+  const updateSimAndPopulateParams = (textContent) => {
+    getSearchParams(textContent)
+    return textContent
   }
   
   const handleClick = (e, param) => {
     const updateKey = `selected${param}`
-    const updateValue = param === "Sim" ? e.currentTarget.textContent : updateSelections(updateKey, e.currentTarget.textContent)
-  
+    const updateValue = param === "Sim" ? updateSimAndPopulateParams(e.currentTarget.textContent) : updateSelections(updateKey, e.currentTarget.textContent)
     setState((prevState) => ({
       ...prevState,
-      [updateKey]: updateValue
+      selectedParams: {
+        ...prevState.selectedParams,
+        [updateKey]: updateValue
+      }
     }))
   }
 
   return (
     <Container component="main" >
       <CssBaseline />
+      <Banner errors={state.errors} />
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
           Find Your Wingman
@@ -109,19 +163,19 @@ export default function Search() {
             I'm looking for someone who plays
         </h3>
         <Grid>
-            {state.searchParams.sims.map(sim => { 
+            {state.searchParams.sims && state.searchParams.sims.map(sim => { 
                 return(
                   <Chip 
                     key={sim}
                     value={sim}
                     label={sim}
                     onClick={(e) => { handleClick(e, "Sim")}}
-                    variant={state.selectedSim === sim ? "default" : "outlined"}
+                    variant={state.selectedParams.selectedSim === sim ? "default" : "outlined"}
                   />
                 )
             })}
         </Grid>
-        {state.selectedSim && <>
+        {state.selectedParams.selectedSim && <>
           <h3>With the following modules</h3>
           <Grid>
               {state.searchParams.modules.map(module => { 
@@ -132,13 +186,13 @@ export default function Search() {
                       label={module}
                       name="Module"
                       onClick={(e) => { handleClick(e, "Modules") }}
-                      variant={state.selectedModules.includes(module) ? "default" : "outlined"}
+                      variant={state.selectedParams.selectedModules.includes(module) ? "default" : "outlined"}
                     />
                   )
               })}
           </Grid>
         </>}
-        {state.selectedSim && <>
+        {state.selectedParams.selectedSim && <>
           <h3>and the following maps</h3>
           <Grid>
             {state.searchParams.maps.map(map => { 
@@ -148,13 +202,13 @@ export default function Search() {
                     value={map}
                     label={map}
                     onClick={(e) => { handleClick(e, "Maps") }}
-                    variant={state.selectedMaps.includes(map) ? "default" : "outlined"}
+                    variant={state.selectedParams.selectedMaps.includes(map) ? "default" : "outlined"}
                   />
                 )
             })}
         </Grid>
         </>}
-        {state.selectedSim && <>
+        {state.selectedParams.selectedSim && <>
           <h3>in the following timezones</h3>
           <Grid>
               {state.searchParams.timezones.map(timezone => { 
@@ -164,13 +218,12 @@ export default function Search() {
                       value={timezone}
                       label={timezone}
                       onClick={(e) => { handleClick(e, "Timezones") }}
-                      variant={state.selectedTimezones.includes(timezone) ? "default" : "outlined"}
+                      variant={state.selectedParams.selectedTimezones.includes(timezone) ? "default" : "outlined"}
                     />
                   )
               })}
           </Grid>
         </>}
-        <Banner errors={state.errors} />
           <Button
             data-testid="search-button"
             type="button"
@@ -178,7 +231,7 @@ export default function Search() {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={() => { search() }}
+            onClick={search}
           >
             Search
           </Button>

@@ -6,71 +6,180 @@ import { act } from 'react-dom/test-utils';
 
 import Search from './Search'
 
+const sims = ["DCS", "IL2", "Falcon BMS"]
+
 describe('Search', () => {
     beforeAll(() => jest.spyOn(window, 'fetch'))
-    beforeEach(() => {
-        render(<Search />)``
-    })
 
     afterEach(() => {
         jest.resetAllMocks();
     });
 
-    describe('fields fill in', () => {
-        test('fields are filled in', () => { 
-            const { email, username, password } = userParams
-            fireEvent.change(emailField, { target: { value: email } })
-            fireEvent.change(usernameField, { target: { value: username } })
-            fireEvent.change(passwordField, { target: { value: password } })
-            fireEvent.change(confirmPasswordField, { target: { value: password } })
 
-            expect(emailField.value).toBe(email);
-            expect(usernameField.value).toBe(username);
-            expect(passwordField.value).toBe(password);
-            expect(confirmPasswordField.value).toBe(password);
+    describe('populating search parameters', () => {
+        test('a sim list is populated on load', async () => { 
+          window.fetch.mockResolvedValueOnce({ data: sims })
+
+          await act(async() => {
+            render(<Search />)
+          });
+
+            expect(window.fetch).toHaveBeenCalledWith(
+            '/sims',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+
+          expect(window.fetch).toHaveBeenCalledTimes(1)
+          
+          expect(screen.getByText("DCS")).toBeInTheDocument()
+          expect(screen.getByText("IL2")).toBeInTheDocument()
+          expect(screen.getByText("Falcon BMS")).toBeInTheDocument()
+        })
+
+        test('getSims is broken', async () => { 
+          window.fetch.mockRejectedValueOnce({errors: ['its broke']})
+
+          await act(async() => {
+            render(<Search />)
+          });
+          
+          expect(screen.getByText("its broke")).toBeInTheDocument()
+        })
+
+        test('modules and maps are populated once a sim is selected', async () => {
+          await act(async() => {
+            window.fetch.mockResolvedValueOnce({ data: sims })
+            render(<Search />)          
+          });
+
+          window.fetch.mockResolvedValueOnce({ data: {
+            modules: ['module1'],
+            maps: ['map1'],
+            timezones: ['EST', 'PST']
+           } })
+
+          await act(async() => {
+            userEvent.click(screen.getByText("DCS"))         
+          });
+
+          expect(window.fetch).toHaveBeenCalledTimes(2)
+
+          expect(window.fetch).toHaveBeenCalledWith( 
+            '/sims',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+
+          expect(window.fetch).toHaveBeenCalledWith(
+            "/get-search-params?sim=DCS",
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          )
+        })
+
+        test('getSearchParams is broken', async () => {
+          await act(async() => {
+            window.fetch.mockResolvedValueOnce({ data: sims })
+            render(<Search />)          
+          });
+
+          window.fetch.mockRejectedValueOnce({errors: ['its broke']})
+
+          await act(async() => {
+            userEvent.click(screen.getByText("DCS"))         
+          });
+
+          expect(screen.getByText("its broke")).toBeInTheDocument()
         })
     })
+    describe('search', () => {
+      test('it should search with parameters', async () => {
+        await act(async() => {
+          window.fetch.mockResolvedValueOnce({ data: sims })
+          render(<Search />)          
+        });
+  
+        window.fetch.mockResolvedValueOnce({ data: {
+          modules: ['module1'],
+          maps: ['map1'],
+          timezones: ['EST', 'PST']
+         } })
+  
+        await act(async() => {   
+          userEvent.click(screen.getByText("DCS")) 
+        });
 
-    describe('on submit', () => {
-        test('successful submit', async () => {
-            const { email, username, password } = userParams
-            fireEvent.change(emailField, { target: { value: email } })
-            fireEvent.change(usernameField, { target: { value: username } })
-            fireEvent.change(passwordField, { target: { value: password } })
-            fireEvent.change(confirmPasswordField, { target: { value: password } })
+        await act(async() => {   
+          userEvent.click(screen.getByText("module1"))  
+          userEvent.click(screen.getByText("map1")) 
+          userEvent.click(screen.getByText("EST")) 
+          userEvent.click(screen.getByText("PST"))
+        });
 
-            window.fetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({success: true}),
-              })
+        window.fetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({success: true}),
+        })
+        
+        userEvent.click(screen.getByText("Search"))
 
-              userEvent.click(submitButton)
+        expect(window.fetch).toHaveBeenCalledTimes(3)
 
-              expect(window.fetch).toHaveBeenCalledWith(
-                '/api/sign_up',
-                {
-                  method: 'POST',
-                  body: JSON.stringify(userParams),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                },
-              )
+        expect(window.fetch).toHaveBeenCalledWith(
+          "/search",
+          {
+            method: 'POST',
+            body: "{\"selectedSim\":\"DCS\",\"selectedModules\":[\"module1\"],\"selectedMaps\":[\"map1\"],\"selectedTimezones\":[\"PST\"]}",
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+      })
+
+      test('search is broken', async () => {
+        await act(async() => {
+          window.fetch.mockResolvedValueOnce({ data: sims })
+          render(<Search />)          
+        });
+  
+        window.fetch.mockResolvedValueOnce({ data: {
+          modules: ['module1'],
+          maps: ['map1'],
+          timezones: ['EST', 'PST']
+         } })
+  
+        await act(async() => {   
+          userEvent.click(screen.getByText("DCS")) 
+        });
+
+        await act(async() => {   
+          userEvent.click(screen.getByText("module1"))  
+          userEvent.click(screen.getByText("map1")) 
+          userEvent.click(screen.getByText("EST")) 
+          userEvent.click(screen.getByText("PST"))
+        });
+
+        window.fetch.mockRejectedValueOnce({errors: ['its broke']})
+
+        await act(async() => {   
+          userEvent.click(screen.getByText("Search"))
         })
 
-        test('error response', async () => {
-              const message1 = 'its broke'
-              const message2 = 'really broke'
-              const message3 = 'you should feel bad'
-              window.fetch.mockRejectedValueOnce({errors: [message1, message2, message3]})
-              
-              await act(async() => {
-                userEvent.click(submitButton)
-              });
-
-              expect(screen.getByText(message1)).toBeInTheDocument()
-              expect(screen.getByText(message2)).toBeInTheDocument()
-              expect(screen.getByText(message3)).toBeInTheDocument()
-        })
+        expect(screen.getByText("its broke")).toBeInTheDocument()
+      })
     })
 })
