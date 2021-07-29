@@ -2,12 +2,10 @@ import { React, useState, useEffect } from 'react';
 import Banner from '../Banner/Banner'
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Grid from '@material-ui/core/Grid';
-import Chip from '@material-ui/core/Chip';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import  { Redirect } from 'react-router-dom'
+import { makeStyles } from '@material-ui/core/styles';
+import SearchChip from '../SearchChip/SearchChip';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -50,27 +48,6 @@ export default function Search() {
 
   const [state, setState] = useState(initialState)
 
-  const getSims = () => {
-    fetch('/sims', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then((response) => {
-      setState((prevState) => ({
-        ...prevState,
-        searchParams: {
-          ...prevState.searchParams,
-          sims: response['data']
-        }
-      }))
-    })
-    .catch((error_response) => {
-      handleErrors(error_response.errors)
-    })
-  }
-
   const getSearchParams = (sim) => {
     fetch(`/get-search-params?sim=${sim}`, {
       method: 'GET',
@@ -95,6 +72,27 @@ export default function Search() {
   }
 
   useEffect(() => {
+    const getSims = () => {
+      fetch('/sims', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then((response) => {
+        setState((prevState) => ({
+          ...prevState,
+          searchParams: {
+            ...prevState.searchParams,
+            sims: response['data']
+          }
+        }))
+      })
+      .catch((error_response) => {
+        handleErrors(error_response.errors)
+      })
+    }
+  
     getSims();
   }, []);
 
@@ -157,73 +155,43 @@ export default function Search() {
           Find Your Wingman
         </Typography>
         <form className={classes.form} noValidate>
-        <h3>
-            I'm looking for someone who plays
-        </h3>
-        <Grid>
-            {state.searchParams.sims && state.searchParams.sims.map(sim => { 
-                return(
-                  <Chip 
-                    key={sim}
-                    value={sim}
-                    label={sim}
-                    onClick={(e) => { handleClick(e, "Sim")}}
-                    variant={state.selectedParams.selectedSim === sim ? "default" : "outlined"}
-                  />
-                )
-            })}
-        </Grid>
-        {state.selectedParams.selectedSim && <>
-          <h3>With the following modules</h3>
-          <Grid>
-              {state.searchParams.modules.map(module => { 
-                  return(
-                    <Chip 
-                      key={module}
-                      value={module}
-                      label={module}
-                      name="Module"
-                      onClick={(e) => { handleClick(e, "Modules") }}
-                      variant={state.selectedParams.selectedModules.includes(module) ? "default" : "outlined"}
-                    />
-                  )
-              })}
-          </Grid>
-        </>}
-        {state.selectedParams.selectedSim && <>
-          <h3>and the following maps</h3>
-          <Grid>
-            {state.searchParams.maps.map(map => { 
-                return(
-                  <Chip 
-                    key={map}
-                    value={map}
-                    label={map}
-                    onClick={(e) => { handleClick(e, "Maps") }}
-                    variant={state.selectedParams.selectedMaps.includes(map) ? "default" : "outlined"}
-                  />
-                )
-            })}
-        </Grid>
-        </>}
-        {state.selectedParams.selectedSim && <>
-          <h3>in the following timezones</h3>
-          <Grid>
-              {state.searchParams.timezones.map(timezone => { 
-                  return(
-                    <Chip 
-                      key={timezone}
-                      value={timezone}
-                      label={timezone}
-                      onClick={(e) => { handleClick(e, "Timezones") }}
-                      variant={state.selectedParams.selectedTimezones.includes(timezone) ? "default" : "outlined"}
-                    />
-                  )
-              })}
-          </Grid>
-        </>}
+          {state.searchParams.sims &&
+            <SearchChip 
+            title="I'm looking for someone who plays" 
+            items={state.searchParams.sims} 
+            clickHandler={handleClick} 
+            type="Sim"
+            selection={state.selectedParams.selectedSim}
+          />
+        }
+          {state.selectedParams.selectedSim && 
+            <SearchChip 
+              title="With the following modules" 
+              items={state.searchParams.modules} 
+              clickHandler={handleClick} 
+              type="Modules"
+              selection={state.selectedParams.selectedModules}
+            />
+          }
+          {state.selectedParams.selectedSim && 
+            <SearchChip 
+              title="and the following maps" 
+              items={state.searchParams.maps} 
+              clickHandler={handleClick} 
+              type="Maps"
+              selection={state.selectedParams.selectedMaps}
+            />
+          }
+          {state.selectedParams.selectedSim && 
+            <SearchChip 
+              title="in the following timezones" 
+              items={state.searchParams.timezones} 
+              clickHandler={handleClick} 
+              type="Timezones"
+              selection={state.selectedParams.selectedTimezones}
+            />  
+          }
           <Button
-            data-testid="search-button"
             type="button"
             fullWidth
             variant="contained"

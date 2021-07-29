@@ -1,13 +1,17 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
-
 import Search from './Search'
 
 const sims = ["DCS", "IL2", "Falcon BMS"]
-
+const searchParams = {
+                      modules: ['module1'],
+                      maps: ['map1'],
+                      timezones: ['EST', 'PST']
+                    }
+const headers = { 'Content-Type': 'application/json' }
 describe('Search', () => {
     beforeAll(() => jest.spyOn(window, 'fetch'))
 
@@ -17,7 +21,7 @@ describe('Search', () => {
 
 
     describe('populating search parameters', () => {
-        test('a sim list is populated on load', async () => { 
+        test('a sim list is populated on load, children are not', async () => { 
           window.fetch.mockResolvedValueOnce({ data: sims })
 
           await act(async() => {
@@ -28,9 +32,7 @@ describe('Search', () => {
             '/sims',
             {
               method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: headers,
             },
           )
 
@@ -39,6 +41,10 @@ describe('Search', () => {
           expect(screen.getByText("DCS")).toBeInTheDocument()
           expect(screen.getByText("IL2")).toBeInTheDocument()
           expect(screen.getByText("Falcon BMS")).toBeInTheDocument()
+
+          expect(screen.queryByText("With the following modules")).not.toBeInTheDocument()
+          expect(screen.queryByText("and the following maps")).not.toBeInTheDocument()
+          expect(screen.queryByText("in the following timezones")).not.toBeInTheDocument()
         })
 
         test('getSims is broken', async () => { 
@@ -73,9 +79,7 @@ describe('Search', () => {
             '/sims',
             {
               method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: headers,
             }
           )
 
@@ -83,11 +87,14 @@ describe('Search', () => {
             "/get-search-params?sim=DCS",
             {
               method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: headers,
             },
           )
+
+          expect(screen.getByText("module1")).toBeInTheDocument()
+          expect(screen.getByText("map1")).toBeInTheDocument()
+          expect(screen.getByText("EST")).toBeInTheDocument()
+          expect(screen.getByText("PST")).toBeInTheDocument()
         })
 
         test('getSearchParams is broken', async () => {
@@ -112,11 +119,7 @@ describe('Search', () => {
           render(<Search />)          
         });
   
-        window.fetch.mockResolvedValueOnce({ data: {
-          modules: ['module1'],
-          maps: ['map1'],
-          timezones: ['EST', 'PST']
-         } })
+        window.fetch.mockResolvedValueOnce({ data: searchParams })
   
         await act(async() => {   
           userEvent.click(screen.getByText("DCS")) 
@@ -142,7 +145,12 @@ describe('Search', () => {
           "/search",
           {
             method: 'POST',
-            body: "{\"selectedSim\":\"DCS\",\"selectedModules\":[\"module1\"],\"selectedMaps\":[\"map1\"],\"selectedTimezones\":[\"PST\"]}",
+            body: JSON.stringify({
+              selectedSim: "DCS",
+              selectedModules: ['module1'],
+              selectedMaps: ['map1'],
+              selectedTimezones: ['PST']
+            }),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -156,11 +164,7 @@ describe('Search', () => {
           render(<Search />)          
         });
   
-        window.fetch.mockResolvedValueOnce({ data: {
-          modules: ['module1'],
-          maps: ['map1'],
-          timezones: ['EST', 'PST']
-         } })
+        window.fetch.mockResolvedValueOnce({ data: searchParams })
   
         await act(async() => {   
           userEvent.click(screen.getByText("DCS")) 
@@ -173,13 +177,15 @@ describe('Search', () => {
           userEvent.click(screen.getByText("PST"))
         });
 
-        window.fetch.mockRejectedValueOnce({errors: ['its broke']})
+        const errorMessage = 'its broke'
+
+        window.fetch.mockRejectedValueOnce({errors: [errorMessage]})
 
         await act(async() => {   
           userEvent.click(screen.getByText("Search"))
         })
 
-        expect(screen.getByText("its broke")).toBeInTheDocument()
+        expect(screen.getByText(errorMessage)).toBeInTheDocument()
       })
     })
 })
