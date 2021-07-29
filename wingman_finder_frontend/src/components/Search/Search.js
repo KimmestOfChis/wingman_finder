@@ -67,10 +67,7 @@ export default function Search() {
       }))
     })
     .catch((error_response) => {
-      setState((prevState) => ({
-        ...prevState,
-        errors: error_response.errors
-      }))
+      handleErrors(error_response.errors)
     })
   }
 
@@ -93,10 +90,7 @@ export default function Search() {
       }))
     })
     .catch((error_response) => {
-      setState((prevState) => ({
-        ...prevState,
-        errors: error_response.errors
-      }))
+      handleErrors(error_response.errors)
     })
   }
 
@@ -116,11 +110,15 @@ export default function Search() {
       // we'll have to do something here
     })
     .catch((error_response) => {
-      setState((prevState) => ({
-        ...prevState,
-        errors: error_response.errors
-      }))
+      handleErrors(error_response.errors)
     })
+  }
+
+  const handleErrors = (errors) => {
+    setState((prevState) => ({
+      ...prevState,
+      errors: errors
+    }))
   }
 
   const updateSelections = (param, textContent) => {
